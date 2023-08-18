@@ -1,0 +1,57 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set Node.js 16.x
+        uses: actions/setup-node@v3.6.0
+        with:
+          node-version: 16.x
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Rebuild the dist/ directory
+        run: |
+          npm run build
+
+      - name: Deploy Function
+        id: sls-func
+        uses: yc-actions/yc-sls-function@v2
+        with:
+            yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+            bucket: ${{ secrets.BUCKET }}
+            folder-id: 'b1gca87bp8ih4ecupf9r'
+            service-account: 'ajeu45eat8ckki29kei1'
+            function-name: 'currency-bot-handler'
+            runtime: 'nodejs16'
+            memory: '128Mb'
+            entrypoint: 'dist/index.handler'
+            execution-timeout: 2
+            environment: |
+                S3_ENDPOINT=https://storage.yandexcloud.net
+                DST_BUCKET=cache-currency
+            secrets: |
+                AWS_ACCESS_KEY_ID=e6q8js26tn6kni136mbi/e6qtssb4lkolio63dcmp/key_id
+                AWS_SECRET_ACCESS_KEY=e6q8js26tn6kni136mbi/e6qtssb4lkolio63dcmp/secret
+                BOT_TOKEN=e6q8js26tn6kni136mbi/e6qtssb4lkolio63dcmp/bot_token
+            include: | 
+                ./dist
+                package.json
+            exclude: | 
+                **/*.ts

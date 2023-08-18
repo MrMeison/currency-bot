@@ -1,0 +1,23 @@
+{
+  "name": "currency-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.391.0",
+    "node-cache": "^5.1.2",
+    "telegraf": "4.12.2"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "16.1.0",
+    "@types/node": "16.18.41",
+    "@types/node-cache": "4.2.5",
+    "@yandex-cloud/function-types": "2.1.1",
+    "typescript": "5.1.6"
+  },
+  "author": "meison",
+  "license": "ISC"
+}
