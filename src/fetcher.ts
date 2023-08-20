@@ -29,15 +29,18 @@ const s3 = new S3Client({
 
 export const fetchRates = async (): Promise<Rates | null> => {
     if (cache.has(RATES_KEY)) {
+        console.log('Cache hit: load from node-cache');
         return cache.get(RATES_KEY) as Rates;
     }
 
     try {
+        console.time('load from s3')
+
         const getCommand = new GetObjectCommand({
             Key: DST_NAME,
             Bucket: DST_BUCKET
         });
-
+        
         const data = await s3.send(getCommand);
         const text = await data.Body?.transformToString('utf8');
         if (!text) {
@@ -45,6 +48,8 @@ export const fetchRates = async (): Promise<Rates | null> => {
         }
 
         const res = JSON.parse(text) as Rates;
+
+        console.timeEnd('load from s3')
 
         cache.set(RATES_KEY, res);
 
